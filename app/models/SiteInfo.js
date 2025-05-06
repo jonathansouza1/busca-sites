@@ -117,6 +117,27 @@ class SiteInfo {
         });
     }
 
+    // Busca sites por título ou descrição (usando LIKE)
+    static findByTitleOrDescription(searchTerm) {
+        return new Promise((resolve, reject) => {
+            const searchPattern = `%${searchTerm}%`;
+            db.all(
+                'SELECT * FROM site_info WHERE titulo LIKE ? COLLATE NOCASE OR descricao LIKE ? COLLATE NOCASE', 
+                [searchPattern, searchPattern], 
+                (err, rows) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        const sites = rows.map(row => 
+                            new SiteInfo(row.dominio, row.titulo, row.descricao, row.id)
+                        );
+                        resolve(sites);
+                    }
+                }
+            );
+        });
+    }
+
     // Remove um site pelo ID
     static deleteById(id) {
         return new Promise((resolve, reject) => {
