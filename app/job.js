@@ -4,12 +4,8 @@ const SiteInfo = require('./models/SiteInfo');
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-// Configura o cron para executar a cada 10 segundos
-console.log('Agendando execuções a cada 10 segundos...');
-cron.schedule('*/10 * * * * *', async () => {
+async function job() {
 
-    const a = await SiteInfo.findAll();
-    console.log('a', a);
 
     console.log('\nExecução agendada:');
     const domain = generateSiteName();
@@ -40,9 +36,24 @@ cron.schedule('*/10 * * * * *', async () => {
 
         console.log(`Registrando novo site: ${domain}`);
         await site.save();
-  
+
     } catch (error) {
         console.error(`Erro ao verificar o site ${domain}:`, error.message);
     }
+
+}
+
+// Configura o cron para executar a cada 5 segundos
+console.log('Agendando execuções a cada 5 segundos...');
+cron.schedule('*/5 * * * * *', async () => {
+
+    const sites = await SiteInfo.findAll();
+
+    console.log('Quantidade de sites registrados:', sites.length);
+
+    job();
+    job();
+    job();
+
 });
 
