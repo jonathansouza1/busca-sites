@@ -25,7 +25,7 @@ function generateSiteName() {
     const numberSuffix = shouldAddNumber ? Math.floor(Math.random() * 100) : '';
     
     // Combina a palavra com o domínio
-    return `${word}${numberSuffix}.com`.toLowerCase();
+    return `https://${word}${numberSuffix}.com`.toLowerCase();
 }
 
 module.exports = generateSiteName;

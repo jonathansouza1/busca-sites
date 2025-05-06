@@ -27,11 +27,11 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 class SiteInfo {
-    constructor(titulo, descricao, dominio, id = null) {
+    constructor(dominio, titulo = '', descricao = '', id = null) {
         this.id = id;
+        this.dominio = dominio;
         this.titulo = titulo;
         this.descricao = descricao;
-        this.dominio = dominio;
     }
 
     // Salva uma nova instância no banco de dados
@@ -42,7 +42,7 @@ class SiteInfo {
                 db.run(
                     'UPDATE site_info SET titulo = ?, descricao = ?, dominio = ? WHERE id = ?',
                     [this.titulo, this.descricao, this.dominio, this.id],
-                    function(err) {
+                    (err) => {
                         if (err) {
                             reject(err);
                         } else {
@@ -59,10 +59,11 @@ class SiteInfo {
                         if (err) {
                             reject(err);
                         } else {
+                            // Aqui this se refere ao contexto da função de callback do SQLite
                             this.id = this.lastID;
                             resolve(this);
                         }
-                    }
+                    }.bind(this) // Vincula o contexto this da função de callback ao objeto SiteInfo
                 );
             }
         });
@@ -75,7 +76,8 @@ class SiteInfo {
                 if (err) {
                     reject(err);
                 } else if (row) {
-                    resolve(new SiteInfo(row.titulo, row.descricao, row.dominio, row.id));
+                    const site = new SiteInfo(row.dominio, row.titulo, row.descricao, row.id);
+                    resolve(site);
                 } else {
                     resolve(null);
                 }
@@ -90,7 +92,9 @@ class SiteInfo {
                 if (err) {
                     reject(err);
                 } else {
-                    const sites = rows.map(row => new SiteInfo(row.titulo, row.descricao, row.dominio, row.id));
+                    const sites = rows.map(row => 
+                        new SiteInfo(row.dominio, row.titulo, row.descricao, row.id)
+                    );
                     resolve(sites);
                 }
             });
@@ -104,7 +108,9 @@ class SiteInfo {
                 if (err) {
                     reject(err);
                 } else {
-                    const sites = rows.map(row => new SiteInfo(row.titulo, row.descricao, row.dominio, row.id));
+                    const sites = rows.map(row => 
+                        new SiteInfo(row.dominio, row.titulo, row.descricao, row.id)
+                    );
                     resolve(sites);
                 }
             });
